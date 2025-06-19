@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { searchProduct } from "@/utils/foodApi";
+import { scanBarcode } from "@/utils/cameraUtils";
 
 interface ScannerViewProps {
   onBack: () => void;
@@ -40,25 +41,16 @@ const ScannerView: React.FC<ScannerViewProps> = ({
     }
   };
 
-  // Simulate camera scanning for demo purposes
   const handleCameraScan = async () => {
     setIsLoading(true);
     
-    // Demo: Use a sample barcode for testing
-    const sampleBarcodes = [
-      '7300400481588', // Sample Swedish product
-      '8712100849084', // Sample product
-      '3017620422003', // Nutella
-    ];
-    
-    const randomBarcode = sampleBarcodes[Math.floor(Math.random() * sampleBarcodes.length)];
-    
     try {
-      const result = await searchProduct(randomBarcode, avoidedIngredients);
+      const barcode = await scanBarcode();
+      const result = await searchProduct(barcode, avoidedIngredients);
       onScanSuccess(result);
     } catch (error) {
       console.error('Scan error:', error);
-      onScanError("Kunde inte skanna produkten. Försök igen.");
+      onScanError("Kunde inte skanna produkten. Försök igen eller ange streckkoden manuellt.");
     } finally {
       setIsLoading(false);
     }
@@ -91,10 +83,7 @@ const ScannerView: React.FC<ScannerViewProps> = ({
             ) : (
               <div className="text-center">
                 <Camera className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Kameravy kommer här</p>
-                <p className="text-xs text-gray-500 mt-2">
-                  (Demo-läge: Klicka för att testa)
-                </p>
+                <p className="text-gray-600">Tryck för att öppna kameran</p>
               </div>
             )}
           </div>
@@ -112,7 +101,7 @@ const ScannerView: React.FC<ScannerViewProps> = ({
             ) : (
               <>
                 <Camera className="h-4 w-4 mr-2" />
-                Starta kamera (Demo)
+                Öppna kamera
               </>
             )}
           </Button>
